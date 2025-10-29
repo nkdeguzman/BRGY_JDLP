@@ -41,8 +41,11 @@ import HouseholdsPage from './pages/HouseholdsPage';
 import IncidentsPage from './pages/IncidentsPage';
 import DocumentsPage from './pages/DocumentsPage';
 import CertificatePage from './pages/CertificatePage';
+import SettingsPage from './pages/SettingsPage';
+import { useSettings } from './context/SettingsContext.jsx';
 
 export default function App() {
+  const { settings } = useSettings();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [navExpanded, setNavExpanded] = React.useState(false);
   const [navLocked, setNavLocked] = React.useState(false);
@@ -103,7 +106,7 @@ export default function App() {
       {/* HEADER */}
       <AppBar
         position="fixed"
-        sx={{ backgroundColor: '#022954', zIndex: 1201 }}
+        sx={{ backgroundColor: settings.headerColor, zIndex: 1201 }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -120,7 +123,7 @@ export default function App() {
               }}
             >
               <img
-                src="/images/jdlp-logo.png"
+                src={settings.logoSrc || '/images/jdlp-logo.png'}
                 alt="JDLP Logo"
                 style={{
                   width: '30px',
@@ -135,7 +138,7 @@ export default function App() {
                 variant="h6"
                 sx={{ color: 'white', fontWeight: 'bold', lineHeight: 1.2 }}
               >
-                Jesus Dela Peña
+                {settings.websiteName}
               </Typography>
               <Typography
                 variant="body2"
@@ -297,7 +300,7 @@ export default function App() {
               sx={{
                 color: '#022954',
                 borderRadius: '10px',
-                mb: 6,
+                mb: 1,
                 backgroundColor: 'transparent',
                 '&:hover': { backgroundColor: '#ffffff' },
                 py: 0.75,
@@ -327,6 +330,49 @@ export default function App() {
                 />
               )}
             </ListItemButton>
+
+            {/* Settings Button below Logout */}
+            <ListItemButton
+              component={Link}
+              to="/settings"
+              onClick={() => {
+                if (!navLocked) {
+                  setDrawerOpen(false);
+                }
+              }}
+              sx={{
+                color: '#022954',
+                borderRadius: '10px',
+                mb: 6,
+                backgroundColor:
+                  location.pathname === '/settings' ? '#ffffff' : 'transparent',
+                '&:hover': { backgroundColor: '#ffffff' },
+                py: 0.75,
+                px: 1.5,
+                justifyContent:
+                  navExpanded || navLocked ? 'flex-start' : 'center',
+                minHeight: 36,
+                width:
+                  navExpanded || navLocked ? 'calc(100% - 16px)' : 'auto',
+                mx: navExpanded || navLocked ? 1 : 0,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  color: '#022954',
+                  minWidth: navExpanded || navLocked ? 32 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                <LockIcon sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              {(navExpanded || navLocked) && (
+                <ListItemText
+                  primary="Settings"
+                  primaryTypographyProps={{ fontSize: '0.75rem' }}
+                />
+              )}
+            </ListItemButton>
           </Box>
         </Box>
 
@@ -348,6 +394,7 @@ export default function App() {
               <Route path="/incidents" element={<IncidentsPage />} />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/certificate" element={<CertificatePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </Container>
         </Box>
@@ -361,7 +408,7 @@ export default function App() {
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: '#022954',
+          backgroundColor: settings.footerColor,
           color: 'white',
           py: 2,
           px: 3,
@@ -376,20 +423,9 @@ export default function App() {
               alignItems: 'center',
             }}
           >
-            <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              © {new Date().getFullYear()} Jesus Dela Peña Barangay Information
-              System
+            <Typography variant="body2" sx={{ opacity: 0.8, whiteSpace: 'pre-line' }}>
+              {settings.footerText}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <EmailIcon sx={{ fontSize: 18, opacity: 0.8 }} />
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                brgy.jdlp@gmail.com
-              </Typography>
-              <PhoneIcon sx={{ fontSize: 18, opacity: 0.8, ml: 1 }} />
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                (028) 243-9467
-              </Typography>
-            </Box>
           </Box>
         </Container>
       </Box>

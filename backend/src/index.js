@@ -8,6 +8,8 @@ import householdsRoutes from "./routes/households.js";
 import documentsRoutes from "./routes/documents.js";
 import authRoutes from "./routes/auth.js";
 import statsRoutes from "./routes/stats.js";
+import noteRoutes from "./routes/noteRoutes.js";
+
 
 dotenv.config()
 
@@ -23,6 +25,7 @@ app.use("/api/households", householdsRoutes);
 app.use("/api/documents", documentsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/stats", statsRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Root test
 app.get('/', (req, res) => {

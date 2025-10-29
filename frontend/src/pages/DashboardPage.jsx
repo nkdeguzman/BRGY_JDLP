@@ -17,6 +17,12 @@ import {
   Alert,
   IconButton,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Tooltip,
 } from '@mui/material';
 import {
   People as PeopleIcon,
@@ -25,7 +31,10 @@ import {
   Description as DocumentIcon,
   Assignment as CertificateIcon,
   Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
+import { getNotes, addNote as apiAddNote, updateNote as apiUpdateNote, deleteNote as apiDeleteNote } from '../api/notesApi';
 import { getDashboardStats, getRecentActivities } from '../api/statsApi';
 
 export default function DashboardPage() {
@@ -34,7 +43,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({
     totalResidents: 0,
     totalHouseholds: 0,
-    pendingIncidents: 0,
+    ongoingIncidents: 0,
     pendingDocuments: 0,
     completedCertificates: 0,
     monthlyGrowth: 0,
@@ -43,6 +52,12 @@ export default function DashboardPage() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notes, setNotes] = useState([]);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [noteForm, setNoteForm] = useState({ title: '', content: '' });
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewNote, setViewNote] = useState(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -73,6 +88,71 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]); // Refetch when component mounts
+
+  // Load notes
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const res = await getNotes();
+        if (res.data && res.data.success) {
+          setNotes(res.data.data);
+        }
+      } catch (e) {
+        console.error('Error loading notes', e);
+      }
+    };
+    loadNotes();
+  }, []);
+
+  const openAddNote = () => {
+    setEditingNote(null);
+    setNoteForm({ title: '', content: '' });
+    setNoteDialogOpen(true);
+  };
+
+  const openEditNote = (note) => {
+    setEditingNote(note);
+    setNoteForm({ title: note.title || '', content: note.content || '' });
+    setNoteDialogOpen(true);
+  };
+
+  const closeNoteDialog = () => {
+    setNoteDialogOpen(false);
+  };
+
+  const saveNote = async () => {
+    try {
+      if (editingNote) {
+        await apiUpdateNote(editingNote.id, noteForm);
+      } else {
+        await apiAddNote(noteForm);
+      }
+      const res = await getNotes();
+      setNotes(res.data.data || []);
+      setNoteDialogOpen(false);
+    } catch (e) {
+      console.error('Error saving note', e);
+    }
+  };
+
+  const handleDeleteNote = async (id) => {
+    try {
+      await apiDeleteNote(id);
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    } catch (e) {
+      console.error('Error deleting note', e);
+    }
+  };
+
+  const openViewNote = (note) => {
+    setViewNote(note);
+    setViewDialogOpen(true);
+  };
+
+  const closeViewDialog = () => {
+    setViewDialogOpen(false);
+    setViewNote(null);
+  };
 
   // Refresh data when page becomes visible (e.g., user switches tabs back)
   useEffect(() => {
@@ -245,8 +325,8 @@ export default function DashboardPage() {
           icon={<HomeIcon sx={{ fontSize: 40 }} />}
         />
         <StatCard
-          title="Pending Incidents"
-          value={stats.pendingIncidents}
+          title="Ongoing Incidents"
+          value={stats.ongoingIncidents}
           icon={<ReportIcon sx={{ fontSize: 40 }} />}
         />
         <StatCard
@@ -423,9 +503,9 @@ export default function DashboardPage() {
 
           {/* Notes Section */}
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4} sx={{ ml: '1', mt: 1 }}>
+            <Grid item xs={12} md={12} sx={{ mt: 1 }}>
               <Paper
-                sx={{ p: 3, borderRadius: 2, border: '1px solid #022954' }}
+                sx={{ p: 3, borderRadius: 2, border: '1px solid #022954', width: '100%' }}
               >
                 <Box
                   sx={{
@@ -449,29 +529,132 @@ export default function DashboardPage() {
                       height: 25,
                       '&:hover': { backgroundColor: '#021a3d' },
                     }}
+                    onClick={openAddNote}
                   >
                     <AddIcon sx={{ fontSize: '15px' }} />
                   </IconButton>
                 </Box>
-                <Box
-                  sx={{
-                    height: 84,
-                    width: 500,
-
-                    borderRadius: 1,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: '#999',
-                  }}
-                >
-                  <Typography variant="body2">No notes yet</Typography>
-                </Box>
+                {notes && notes.length > 0 ? (
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap', overflowX: 'auto', width: 500, pb: 1 }}>
+                    {notes.map((note) => (
+                      <Card
+                        key={note.id}
+                        sx={{
+                          width: 90,
+                          height: 90,
+                          border: '1px solid #022954',
+                          borderRadius: 2,
+                          position: 'relative',
+                          overflow: 'hidden', // keep size consistent
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => openViewNote(note)}
+                      >
+                        <CardContent sx={{ p: 1, pb: 3.5 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ color: '#022954', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            title={note.title}
+                          >
+                            {note.title || 'Untitled'}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: '#022954', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            title={note.content}
+                          >
+                            {note.content}
+                          </Typography>
+                        </CardContent>
+                        <Box sx={{ position: 'absolute', bottom: 4, right: 4, display: 'flex', gap: 0.5 }}>
+                          <Tooltip title="Edit">
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditNote(note); }} sx={{ color: '#022954' }}>
+                              <EditIcon fontSize="inherit" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id); }} sx={{ color: '#022954' }}>
+                              <DeleteIcon fontSize="inherit" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </Card>
+                    ))}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      height: 84,
+                      width: 500,
+                      borderRadius: 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      color: '#999',
+                    }}
+                  >
+                    <Typography variant="body2">No notes yet</Typography>
+                  </Box>
+                )}
               </Paper>
             </Grid>
           </Grid>
         </Box>
       </Box>
+
+      <Dialog open={noteDialogOpen} onClose={closeNoteDialog} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ color: '#022954', fontWeight: 700 }}>
+          {editingNote ? 'Edit Note' : 'Add Note'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            label="Title"
+            fullWidth
+            margin="dense"
+            value={noteForm.title}
+            onChange={(e) => setNoteForm((f) => ({ ...f, title: e.target.value }))}
+          />
+          <TextField
+            label="Content"
+            fullWidth
+            margin="dense"
+            multiline
+            minRows={3}
+            value={noteForm.content}
+            onChange={(e) => setNoteForm((f) => ({ ...f, content: e.target.value }))}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeNoteDialog}>Cancel</Button>
+          <Button variant="contained" onClick={saveNote} sx={{ backgroundColor: '#022954' }}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={viewDialogOpen} onClose={closeViewDialog} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ color: '#022954', fontWeight: 700 }}>
+          {viewNote?.title || 'Note'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+            {viewNote?.content}
+          </Typography>
+          {viewNote?.created_at && (
+            <Typography variant="caption" sx={{ display: 'block', mt: 2, color: '#666' }}>
+              Created: {new Date(viewNote.created_at).toLocaleString()}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeViewDialog}>Close</Button>
+          {viewNote && (
+            <Button onClick={() => { closeViewDialog(); openEditNote(viewNote); }} variant="contained" sx={{ backgroundColor: '#022954' }}>
+              Edit
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

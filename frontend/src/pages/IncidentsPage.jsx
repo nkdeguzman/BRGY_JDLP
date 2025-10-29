@@ -39,6 +39,7 @@ export default function IncidentsPage() {
   });
   const [formError, setFormError] = useState("");
 
+  // ✅ Load all incidents
   const loadIncidents = async () => {
     try {
       const res = await getIncidents();
@@ -68,7 +69,7 @@ export default function IncidentsPage() {
     }
   }, [searchTerm, incidents]);
 
-  // ✅ Open form for add
+  // ✅ Open form for Add
   const handleAdd = () => {
     setEditing(null);
     setFormData({
@@ -83,7 +84,7 @@ export default function IncidentsPage() {
     setOpenForm(true);
   };
 
-  // ✅ Open form for edit
+  // ✅ Open form for Edit
   const handleEdit = (incident) => {
     setEditing(incident);
     setFormData({ ...incident });
@@ -98,10 +99,20 @@ export default function IncidentsPage() {
     setFormError("");
   };
 
-  // ✅ Submit form
+  // ✅ Submit form (ALL fields required)
   const handleSubmit = async () => {
-    if (!formData.type || !formData.persons_involved) {
-      setFormError("Please fill in all required fields.");
+    const { date, type, persons_involved, resolution_status, mediation_records, outcome } = formData;
+
+    // Check that all fields are filled
+    if (
+      !date.trim() ||
+      !type.trim() ||
+      !persons_involved.trim() ||
+      !resolution_status.trim() ||
+      !mediation_records.trim() ||
+      !outcome.trim()
+    ) {
+      setFormError("Please fill in all required fields before saving.");
       return;
     }
 
@@ -111,11 +122,11 @@ export default function IncidentsPage() {
       } else {
         await createIncident(formData);
       }
-      handleCloseForm();
       loadIncidents();
+      handleCloseForm();
     } catch (err) {
       console.error("Error saving incident:", err);
-      setFormError("Failed to save. Try again.");
+      setFormError("Failed to save incident. Try again.");
     }
   };
 
@@ -130,11 +141,11 @@ export default function IncidentsPage() {
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
       {/* Header */}
-      <Box sx={{ backgroundColor: '#022954', borderRadius: 2, p: 2, mb: 1 }}>
+      <Box sx={{ backgroundColor: "#022954", borderRadius: 2, p: 2, mb: 1 }}>
         <Typography
           variant="h2"
           component="h1"
-          sx={{ fontWeight: 600, color: '#fff', fontSize: '20px' }}
+          sx={{ fontWeight: 600, color: "#fff", fontSize: "20px" }}
         >
           Incident & Blotter Records
         </Typography>
@@ -186,7 +197,7 @@ export default function IncidentsPage() {
             fontWeight: 700,
             fontSize: "10px",
             ml: 2,
-            '&:hover': { backgroundColor: '#03346b' },
+            "&:hover": { backgroundColor: "#03346b" },
           }}
         >
           Add Incident
@@ -215,6 +226,7 @@ export default function IncidentsPage() {
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               InputLabelProps={{ shrink: true }}
               fullWidth
+              required
             />
             <TextField
               label="Type"
@@ -235,26 +247,39 @@ export default function IncidentsPage() {
               value={formData.resolution_status}
               onChange={(e) => setFormData({ ...formData, resolution_status: e.target.value })}
               fullWidth
+              required
             />
             <TextField
               label="Mediation Records"
               value={formData.mediation_records}
               onChange={(e) => setFormData({ ...formData, mediation_records: e.target.value })}
               fullWidth
+              required
             />
             <TextField
               label="Outcome"
               value={formData.outcome}
               onChange={(e) => setFormData({ ...formData, outcome: e.target.value })}
               fullWidth
+              required
             />
           </Box>
 
-          {formError && <Typography color="error">{formError}</Typography>}
+          {formError && (
+            <Typography color="error" sx={{ mt: 1 }}>
+              {formError}
+            </Typography>
+          )}
 
           <Button
             variant="contained"
-            sx={{ backgroundColor: "#022954", color: "#fff", fontWeight: 700 }}
+            sx={{
+              backgroundColor: "#022954",
+              color: "#fff",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              "&:hover": { backgroundColor: "#03346b" },
+            }}
             onClick={handleSubmit}
           >
             {editing ? "Save Changes" : "Save"}
@@ -288,15 +313,12 @@ export default function IncidentsPage() {
             <TableBody>
               {filteredIncidents.length > 0 ? (
                 filteredIncidents.map((i) => (
-                  <TableRow
-                    key={i.id}
-                    sx={{ "&:hover": { backgroundColor: "#f8f9fa" } }}
-                  >
+                  <TableRow key={i.id} sx={{ "&:hover": { backgroundColor: "#f8f9fa" } }}>
                     <TableCell>{new Date(i.date).toLocaleDateString()}</TableCell>
                     <TableCell>{i.type}</TableCell>
                     <TableCell>{i.persons_involved}</TableCell>
                     <TableCell>{i.resolution_status}</TableCell>
-                    <TableCell>{i.mediation_records || "—"}</TableCell>
+                    <TableCell>{i.mediation_records}</TableCell>
                     <TableCell>{i.outcome}</TableCell>
                     <TableCell>
                       <Box display="flex" gap={1}>
@@ -309,10 +331,7 @@ export default function IncidentsPage() {
                           sx={{
                             borderColor: "#022954",
                             color: "#022954",
-                            "&:hover": {
-                              backgroundColor: "#022954",
-                              color: "#fff",
-                            },
+                            "&:hover": { backgroundColor: "#022954", color: "#fff" },
                           }}
                         >
                           Edit

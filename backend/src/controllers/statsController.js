@@ -17,12 +17,12 @@ export const getDashboardStats = async (req, res) => {
     const totalHouseholds = householdsResult[0].total
 
     // Get pending incidents count (if incidents table exists)
-    let pendingIncidents = 0
+    let ongoingIncidents = 0
     try {
       const [incidentsResult] = await pool.execute(
-        'SELECT COUNT(*) as total FROM incidents WHERE status = "pending"'
+        'SELECT COUNT(*) as total FROM incidents WHERE LOWER(resolution_status) = "ongoing"'
       )
-      pendingIncidents = incidentsResult[0].total
+      ongoingIncidents = incidentsResult[0].total
     } catch (error) {
       // If incidents table doesn't exist, set to 0
       console.log('Incidents table not found, setting to 0')
@@ -81,7 +81,7 @@ export const getDashboardStats = async (req, res) => {
       data: {
         totalResidents,
         totalHouseholds,
-        pendingIncidents,
+        ongoingIncidents,
         pendingDocuments,
         completedCertificates,
         monthlyGrowth: monthlyGrowth,
