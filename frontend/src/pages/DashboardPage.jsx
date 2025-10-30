@@ -349,7 +349,7 @@ export default function DashboardPage() {
             sx={{
               p: 3,
               borderRadius: 2,
-              height: '350px',
+              height: '382px',
               display: 'flex',
               flexDirection: 'column',
               ml: 5,
