@@ -417,8 +417,8 @@ export default function DashboardPage() {
           </Paper>
         </Box>
 
-        {/* Quick Actions - Right */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        {/* Quick Actions + Notes - Right */}
+        <Box sx={{ flex: 1, minWidth: 0, height: '382px', display: 'flex', flexDirection: 'column' }}>
           <Paper
             sx={{
               p: 2,
@@ -502,11 +502,10 @@ export default function DashboardPage() {
           </Paper>
 
           {/* Notes Section */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={12} sx={{ mt: 1 }}>
-              <Paper
-                sx={{ p: 3, borderRadius: 2, border: '1px solid #022954', width: '100%' }}
-              >
+          <Box sx={{ flexGrow: 1, minHeight: 0, mt: 1, display: 'flex' }}>
+            <Paper
+              sx={{ p: 3, borderRadius: 2, border: '1px solid #022954', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
+            >
                 <Box
                   sx={{
                     display: 'flex',
@@ -542,6 +541,8 @@ export default function DashboardPage() {
                     overflowX: { xs: 'visible', md: 'auto' }, // para hindi mag overlapped
                     width: '100%', // para hindi mag overlapped
                     pb: 1,
+                    flexGrow: 1,
+                    minHeight: 0,
                   }}>
                     {notes.map((note) => (
                       <Card
@@ -604,9 +605,8 @@ export default function DashboardPage() {
                     <Typography variant="body2">No notes yet</Typography>
                   </Box>
                 )}
-              </Paper>
-            </Grid>
-          </Grid>
+            </Paper>
+          </Box>
         </Box>
       </Box>
 
