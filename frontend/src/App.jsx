@@ -421,11 +421,29 @@ export default function App() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              flexWrap: 'wrap',
             }}
           >
-            <Typography variant="body2" sx={{ opacity: 0.8, whiteSpace: 'pre-line' }}>
-              {settings.footerText}
+            {/* Left: Copyright */}
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              {settings.footerCopyright}
             </Typography>
+
+            {/* Right: Contact */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: { xs: 1, sm: 0 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <EmailIcon sx={{ fontSize: 16, opacity: 0.9 }} />
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {settings.footerEmail}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <PhoneIcon sx={{ fontSize: 16, opacity: 0.9 }} />
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {settings.footerPhone}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
         </Container>
       </Box>

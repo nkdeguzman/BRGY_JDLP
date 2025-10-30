@@ -535,7 +535,14 @@ export default function DashboardPage() {
                   </IconButton>
                 </Box>
                 {notes && notes.length > 0 ? (
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap', overflowX: 'auto', width: 500, pb: 1 }}>
+                  <Box sx={{
+                    display: 'flex',
+                    gap: 1,
+                    flexWrap: { xs: 'wrap', sm: 'wrap', md: 'nowrap' }, // para hindi mag overlapped
+                    overflowX: { xs: 'visible', md: 'auto' }, // para hindi mag overlapped
+                    width: '100%', // para hindi mag overlapped
+                    pb: 1,
+                  }}>
                     {notes.map((note) => (
                       <Card
                         key={note.id}
@@ -547,6 +554,7 @@ export default function DashboardPage() {
                           position: 'relative',
                           overflow: 'hidden', // keep size consistent
                           cursor: 'pointer',
+                          flexShrink: 0,
                         }}
                         onClick={() => openViewNote(note)}
                       >
@@ -585,7 +593,7 @@ export default function DashboardPage() {
                   <Box
                     sx={{
                       height: 84,
-                      width: 500,
+                      width: '100%',
                       borderRadius: 1,
                       display: 'flex',
                       justifyContent: 'center',

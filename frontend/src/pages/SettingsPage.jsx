@@ -7,7 +7,9 @@ export default function SettingsPage() {
   const [websiteName, setWebsiteName] = useState(settings.websiteName || '');
   const [logoPreview, setLogoPreview] = useState(settings.logoSrc || '/images/jdlp-logo.png');
   const [headerColor, setHeaderColor] = useState(settings.headerColor || '#022954');
-  const [footerText, setFooterText] = useState(settings.footerText || '');
+  const [footerCopyright, setFooterCopyright] = useState(settings.footerCopyright || '');
+  const [footerEmail, setFooterEmail] = useState(settings.footerEmail || '');
+  const [footerPhone, setFooterPhone] = useState(settings.footerPhone || '');
   const [footerColor, setFooterColor] = useState(settings.footerColor || '#022954');
 
   // Sync form fields when settings change
@@ -15,7 +17,9 @@ export default function SettingsPage() {
     setWebsiteName(settings.websiteName || '');
     setLogoPreview(settings.logoSrc || '/images/jdlp-logo.png');
     setHeaderColor(settings.headerColor || '#022954');
-    setFooterText(settings.footerText || '');
+    setFooterCopyright(settings.footerCopyright || '');
+    setFooterEmail(settings.footerEmail || '');
+    setFooterPhone(settings.footerPhone || '');
     setFooterColor(settings.footerColor || '#022954');
   }, [settings]);
 
@@ -33,7 +37,9 @@ export default function SettingsPage() {
       websiteName,
       logoSrc: logoPreview,
       headerColor,
-      footerText,
+      footerCopyright,
+      footerEmail,
+      footerPhone,
       footerColor,
     });
   };
@@ -43,7 +49,9 @@ export default function SettingsPage() {
     setWebsiteName(settings.websiteName || '');
     setLogoPreview(settings.logoSrc || '/images/jdlp-logo.png');
     setHeaderColor(settings.headerColor || '#022954');
-    setFooterText(settings.footerText || '');
+    setFooterCopyright(settings.footerCopyright || '');
+    setFooterEmail(settings.footerEmail || '');
+    setFooterPhone(settings.footerPhone || '');
     setFooterColor(settings.footerColor || '#022954');
   };
 
@@ -51,7 +59,9 @@ export default function SettingsPage() {
     setWebsiteName(DEFAULT_SETTINGS.websiteName);
     setLogoPreview(DEFAULT_SETTINGS.logoSrc);
     setHeaderColor(DEFAULT_SETTINGS.headerColor);
-    setFooterText(DEFAULT_SETTINGS.footerText);
+    setFooterCopyright(DEFAULT_SETTINGS.footerCopyright);
+    setFooterEmail(DEFAULT_SETTINGS.footerEmail);
+    setFooterPhone(DEFAULT_SETTINGS.footerPhone);
     setFooterColor(DEFAULT_SETTINGS.footerColor);
     setSettings({ ...DEFAULT_SETTINGS });
   };
@@ -99,18 +109,43 @@ export default function SettingsPage() {
         </Box>
 
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" sx={{ color: '#022954', mb: 0.5 , fontWeight: 'bold' , fontWeight: 'bold'}}>
-            Footer Text
+          <Typography variant="body2" sx={{ color: '#022954', mb: 0.5, fontWeight: 'bold' }}>
+            Footer Copyright
           </Typography>
           <TextField
             fullWidth
             size="small"
-            multiline
-            minRows={3}
-            value={footerText}
-            onChange={(e) => setFooterText(e.target.value)}
+            value={footerCopyright}
+            onChange={(e) => setFooterCopyright(e.target.value)}
             sx={{ backgroundColor: '#f1f1f1' }}
           />
+        </Box>
+
+        <Box sx={{ mb: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
+          <Box>
+            <Typography variant="body2" sx={{ color: '#022954', mb: 0.5, fontWeight: 'bold' }}>
+              Footer Email
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              value={footerEmail}
+              onChange={(e) => setFooterEmail(e.target.value)}
+              sx={{ backgroundColor: '#f1f1f1' }}
+            />
+          </Box>
+          <Box>
+            <Typography variant="body2" sx={{ color: '#022954', mb: 0.5, fontWeight: 'bold' }}>
+              Footer Phone
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              value={footerPhone}
+              onChange={(e) => setFooterPhone(e.target.value)}
+              sx={{ backgroundColor: '#f1f1f1' }}
+            />
+          </Box>
         </Box>
 
         <Box sx={{ mb: 2 }}>
